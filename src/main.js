@@ -1,4 +1,8 @@
-import App from './modules/App'
+import upload from './modules/upload'
+import {createApp} from './modules/App'
+import './style.scss'
 
-const app = new App('#app')
-app.render('test string')
+createApp(upload).render('#app').use({
+    multi: true,
+    accept: ['.png', '.jpg', '.jpeg', '.gif']
+})

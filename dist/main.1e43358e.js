@@ -117,7 +117,92 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"src/modules/App.js":[function(require,module,exports) {
+})({"src/utils/utils.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createElement = createElement;
+exports.appendElement = appendElement;
+exports.afterElement = afterElement;
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function createElement(tag) {
+  var _node$classList;
+
+  var classes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+  var attrs = arguments.length > 2 ? arguments[2] : undefined;
+  var node = document.createElement(tag);
+
+  (_node$classList = node.classList).add.apply(_node$classList, _toConsumableArray(classes));
+
+  if (attrs) {
+    Object.keys(attrs).forEach(function (attr) {
+      if (attr === 'textContent') {
+        node.textContent = attrs[attr];
+      } else {
+        node.setAttribute(attr, attrs[attr]);
+      }
+    });
+  }
+
+  return node;
+}
+
+function appendElement(parent, child) {
+  return parent.append(child);
+}
+
+function afterElement(parent, child) {
+  return parent.after(child);
+}
+},{}],"src/modules/createdElements.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.$open = exports.$input = exports.$container = void 0;
+
+var _utils = require("../utils/utils");
+
+var $container = (0, _utils.createElement)('div', ['container']);
+exports.$container = $container;
+var $input = (0, _utils.createElement)('input', ['input'], {
+  id: 'input',
+  type: 'file'
+});
+exports.$input = $input;
+var $open = (0, _utils.createElement)('button', ['btn'], {
+  textContent: 'Открыть'
+});
+exports.$open = $open;
+},{"../utils/utils":"src/utils/utils.js"}],"src/modules/listeners.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.fileHandler = fileHandler;
+
+var _createdElements = require("./createdElements");
+
+function fileHandler() {
+  return _createdElements.$input.click();
+}
+},{"./createdElements":"src/modules/createdElements.js"}],"src/modules/upload.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -125,45 +210,150 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+var _utils = require("../utils/utils");
 
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+var _createdElements = require("./createdElements");
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+var _listeners = require("./listeners");
 
-var App = /*#__PURE__*/function () {
-  function App(selector) {
-    _classCallCheck(this, App);
-
-    this.$el = document.querySelector(selector);
+function Upload() {
+  function generatingDOM() {
+    (0, _utils.appendElement)(_createdElements.$container, _createdElements.$input);
+    (0, _utils.afterElement)(_createdElements.$input, _createdElements.$open);
   }
 
-  _createClass(App, [{
-    key: "toHTML",
-    value: function toHTML() {
-      return "\n            <div class=\"container\">\n                <input type=\"file\" class=\"input\">\n            </div>\n        ";
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      this.$el.insertAdjacentHTML('afterbegin', this.toHTML());
-    }
-  }]);
+  _createdElements.$open.addEventListener('click', _listeners.fileHandler);
 
-  return App;
-}();
+  _createdElements.$input.addEventListener('change', function (e) {
+    var files = Array.from(e.target.files);
+    console.log(files);
+  });
 
-exports.default = App;
-},{}],"src/main.js":[function(require,module,exports) {
+  generatingDOM();
+  return _createdElements.$container;
+}
+
+var _default = Upload();
+
+exports.default = _default;
+},{"../utils/utils":"src/utils/utils.js","./createdElements":"src/modules/createdElements.js","./listeners":"src/modules/listeners.js"}],"src/modules/App.js":[function(require,module,exports) {
 "use strict";
 
-var _App = _interopRequireDefault(require("./modules/App"));
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createApp = createApp;
+
+var _createdElements = require("./createdElements");
+
+function createApp(app) {
+  return {
+    render: function render(selector) {
+      var $el = document.querySelector(selector);
+      $el.insertAdjacentElement('afterbegin', app);
+      return this;
+    },
+    use: function use() {
+      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+      if (options.multi) {
+        _createdElements.$input.setAttribute('multiple', 'true');
+      }
+
+      if (options.accept && Array.from(options.accept)) {
+        _createdElements.$input.setAttribute('accept', options.accept.join(','));
+      }
+    }
+  };
+}
+},{"./createdElements":"src/modules/createdElements.js"}],"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
+var bundleURL = null;
+
+function getBundleURLCached() {
+  if (!bundleURL) {
+    bundleURL = getBundleURL();
+  }
+
+  return bundleURL;
+}
+
+function getBundleURL() {
+  // Attempt to find the URL of the current script and use that as the base URL
+  try {
+    throw new Error();
+  } catch (err) {
+    var matches = ('' + err.stack).match(/(https?|file|ftp|chrome-extension|moz-extension):\/\/[^)\n]+/g);
+
+    if (matches) {
+      return getBaseURL(matches[0]);
+    }
+  }
+
+  return '/';
+}
+
+function getBaseURL(url) {
+  return ('' + url).replace(/^((?:https?|file|ftp|chrome-extension|moz-extension):\/\/.+)\/[^/]+$/, '$1') + '/';
+}
+
+exports.getBundleURL = getBundleURLCached;
+exports.getBaseURL = getBaseURL;
+},{}],"node_modules/parcel-bundler/src/builtins/css-loader.js":[function(require,module,exports) {
+var bundle = require('./bundle-url');
+
+function updateLink(link) {
+  var newLink = link.cloneNode();
+
+  newLink.onload = function () {
+    link.remove();
+  };
+
+  newLink.href = link.href.split('?')[0] + '?' + Date.now();
+  link.parentNode.insertBefore(newLink, link.nextSibling);
+}
+
+var cssTimeout = null;
+
+function reloadCSS() {
+  if (cssTimeout) {
+    return;
+  }
+
+  cssTimeout = setTimeout(function () {
+    var links = document.querySelectorAll('link[rel="stylesheet"]');
+
+    for (var i = 0; i < links.length; i++) {
+      if (bundle.getBaseURL(links[i].href) === bundle.getBundleURL()) {
+        updateLink(links[i]);
+      }
+    }
+
+    cssTimeout = null;
+  }, 50);
+}
+
+module.exports = reloadCSS;
+},{"./bundle-url":"node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"src/style.scss":[function(require,module,exports) {
+var reloadCSS = require('_css_loader');
+
+module.hot.dispose(reloadCSS);
+module.hot.accept(reloadCSS);
+},{"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"src/main.js":[function(require,module,exports) {
+"use strict";
+
+var _upload = _interopRequireDefault(require("./modules/upload"));
+
+var _App = require("./modules/App");
+
+require("./style.scss");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var app = new _App.default('#app');
-app.render('test string');
-},{"./modules/App":"src/modules/App.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+(0, _App.createApp)(_upload.default).render('#app').use({
+  multi: true,
+  accept: ['.png', '.jpg', '.jpeg', '.gif']
+});
+},{"./modules/upload":"src/modules/upload.js","./modules/App":"src/modules/App.js","./style.scss":"src/style.scss"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -191,7 +381,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56806" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52137" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

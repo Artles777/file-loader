@@ -1,6 +1,6 @@
 import {appendElement, afterElement} from "../utils/utils"
 import {$container, $input, $open} from './createdElements'
-import {fileHandler} from "./listeners";
+import {loadFiles, triggerFiles} from "./listeners";
 
 function Upload() {
 
@@ -9,11 +9,8 @@ function Upload() {
         afterElement($input, $open)
     }
 
-    $open.addEventListener('click', fileHandler)
-    $input.addEventListener('change', e => {
-        const files = Array.from(e.target.files)
-        console.log(files)
-    })
+    $open.addEventListener('click', triggerFiles)
+    $input.addEventListener('change', loadFiles)
 
     generatingDOM()
 

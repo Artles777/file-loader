@@ -195,12 +195,30 @@ exports.$open = $open;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.fileHandler = fileHandler;
+exports.triggerFiles = triggerFiles;
+exports.loadFiles = loadFiles;
 
 var _createdElements = require("./createdElements");
 
-function fileHandler() {
+function triggerFiles() {
   return _createdElements.$input.click();
+}
+
+function loadFiles(event) {
+  var files = Array.from(event.target.files);
+  files.forEach(function (file) {
+    if (!file.type.match('image')) {
+      return;
+    }
+
+    var reader = new FileReader();
+
+    reader.onload = function (e) {
+      _createdElements.$open.insertAdjacentHTML('afterend', "<img src=\"".concat(e.target.result, "\"/>"));
+    };
+
+    reader.readAsDataURL(file);
+  });
 }
 },{"./createdElements":"src/modules/createdElements.js"}],"src/modules/upload.js":[function(require,module,exports) {
 "use strict";
@@ -222,12 +240,9 @@ function Upload() {
     (0, _utils.afterElement)(_createdElements.$input, _createdElements.$open);
   }
 
-  _createdElements.$open.addEventListener('click', _listeners.fileHandler);
+  _createdElements.$open.addEventListener('click', _listeners.triggerFiles);
 
-  _createdElements.$input.addEventListener('change', function (e) {
-    var files = Array.from(e.target.files);
-    console.log(files);
-  });
+  _createdElements.$input.addEventListener('change', _listeners.loadFiles);
 
   generatingDOM();
   return _createdElements.$container;
@@ -381,7 +396,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52137" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64190" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

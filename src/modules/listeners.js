@@ -1,4 +1,4 @@
-import {$input, $open} from "./createdElements";
+import {$input, $load, $open, $preview} from "./createdElements";
 
 export function triggerFiles() {
     return $input.click()
@@ -13,9 +13,14 @@ export function loadFiles(event) {
 
 		const reader = new FileReader()
 		reader.onload = e => {
-			$open.insertAdjacentHTML('afterend', `<img src="${e.target.result}"/>`)
+			$preview.insertAdjacentHTML('afterbegin', `
+				<div class="preview-image">
+					<img src="${e.target.result}"/>
+				</div>
+			`)
 		}
 
+		$open.after($load)
 		reader.readAsDataURL(file)
 	})
 }

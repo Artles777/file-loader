@@ -3,7 +3,7 @@ export function createElement(tag, classes = [], attrs) {
     node.classList.add(...classes)
     if (attrs) {
         Object.keys(attrs).forEach(attr => {
-            if (attr === 'textContent') {
+            if (attr === 'content') {
                 node.textContent = attrs[attr]
             } else {
                 node.setAttribute(attr, attrs[attr])
@@ -12,10 +12,6 @@ export function createElement(tag, classes = [], attrs) {
     }
 
     return node
-}
-
-export function appendElement(parent, child) {
-    return parent.append(child)
 }
 
 export function afterElement(parent, child) {

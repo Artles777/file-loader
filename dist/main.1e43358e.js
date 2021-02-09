@@ -124,7 +124,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.createElement = createElement;
-exports.appendElement = appendElement;
 exports.afterElement = afterElement;
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
@@ -150,7 +149,7 @@ function createElement(tag) {
 
   if (attrs) {
     Object.keys(attrs).forEach(function (attr) {
-      if (attr === 'textContent') {
+      if (attr === 'content') {
         node.textContent = attrs[attr];
       } else {
         node.setAttribute(attr, attrs[attr]);
@@ -159,10 +158,6 @@ function createElement(tag) {
   }
 
   return node;
-}
-
-function appendElement(parent, child) {
-  return parent.append(child);
 }
 
 function afterElement(parent, child) {
@@ -174,21 +169,29 @@ function afterElement(parent, child) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.$open = exports.$input = exports.$container = void 0;
+exports.$preview = exports.$load = exports.$open = exports.$input = exports.$card = exports.$container = void 0;
 
 var _utils = require("../utils/utils");
 
 var $container = (0, _utils.createElement)('div', ['container']);
 exports.$container = $container;
+var $card = (0, _utils.createElement)('div', ['card']);
+exports.$card = $card;
 var $input = (0, _utils.createElement)('input', ['input'], {
   id: 'input',
   type: 'file'
 });
 exports.$input = $input;
 var $open = (0, _utils.createElement)('button', ['btn'], {
-  textContent: 'Открыть'
+  content: 'Открыть'
 });
 exports.$open = $open;
+var $load = (0, _utils.createElement)('button', ['btn', 'primary'], {
+  content: 'Загрузить'
+});
+exports.$load = $load;
+var $preview = (0, _utils.createElement)('div', ['preview']);
+exports.$preview = $preview;
 },{"../utils/utils":"src/utils/utils.js"}],"src/modules/listeners.js":[function(require,module,exports) {
 "use strict";
 
@@ -214,11 +217,32 @@ function loadFiles(event) {
     var reader = new FileReader();
 
     reader.onload = function (e) {
-      _createdElements.$open.insertAdjacentHTML('afterend', "<img src=\"".concat(e.target.result, "\"/>"));
+      _createdElements.$preview.insertAdjacentHTML('afterbegin', "\n\t\t\t\t<div class=\"preview-image\">\n\t\t\t\t\t<img src=\"".concat(e.target.result, "\"/>\n\t\t\t\t</div>\n\t\t\t"));
     };
+
+    _createdElements.$open.after(_createdElements.$load);
 
     reader.readAsDataURL(file);
   });
+}
+},{"./createdElements":"src/modules/createdElements.js"}],"src/modules/createDOM.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createDOM = createDOM;
+
+var _createdElements = require("./createdElements");
+
+function createDOM() {
+  _createdElements.$container.append(_createdElements.$card);
+
+  _createdElements.$card.append(_createdElements.$input);
+
+  _createdElements.$input.after(_createdElements.$preview);
+
+  _createdElements.$input.after(_createdElements.$open);
 }
 },{"./createdElements":"src/modules/createdElements.js"}],"src/modules/upload.js":[function(require,module,exports) {
 "use strict";
@@ -228,30 +252,26 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-var _utils = require("../utils/utils");
-
 var _createdElements = require("./createdElements");
 
 var _listeners = require("./listeners");
 
-function Upload() {
-  function generatingDOM() {
-    (0, _utils.appendElement)(_createdElements.$container, _createdElements.$input);
-    (0, _utils.afterElement)(_createdElements.$input, _createdElements.$open);
-  }
+var _createDOM = require("./createDOM");
 
+function Upload() {
   _createdElements.$open.addEventListener('click', _listeners.triggerFiles);
 
   _createdElements.$input.addEventListener('change', _listeners.loadFiles);
 
-  generatingDOM();
   return _createdElements.$container;
 }
+
+(0, _createDOM.createDOM)();
 
 var _default = Upload();
 
 exports.default = _default;
-},{"../utils/utils":"src/utils/utils.js","./createdElements":"src/modules/createdElements.js","./listeners":"src/modules/listeners.js"}],"src/modules/App.js":[function(require,module,exports) {
+},{"./createdElements":"src/modules/createdElements.js","./listeners":"src/modules/listeners.js","./createDOM":"src/modules/createDOM.js"}],"src/modules/App.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -396,7 +416,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64190" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50160" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

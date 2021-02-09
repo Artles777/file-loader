@@ -1,21 +1,15 @@
-import {appendElement, afterElement} from "../utils/utils"
 import {$container, $input, $open} from './createdElements'
-import {loadFiles, triggerFiles} from "./listeners";
+import {loadFiles, triggerFiles} from "./listeners"
+import {createDOM} from "./createDOM"
 
 function Upload() {
-
-    function generatingDOM() {
-        appendElement($container, $input)
-        afterElement($input, $open)
-    }
-
     $open.addEventListener('click', triggerFiles)
     $input.addEventListener('change', loadFiles)
-
-    generatingDOM()
 
     return $container
 
 }
+
+createDOM()
 
 export default Upload()

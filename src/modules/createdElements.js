@@ -1,7 +1,7 @@
 import {createElement} from "../utils/utils";
 
 
-export const $container = createElement('div', ['container'])
+export const $root = createElement('div', ['container'])
 
 export const $card = createElement('div', ['card'])
 

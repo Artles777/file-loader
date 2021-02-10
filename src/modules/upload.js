@@ -1,15 +1,11 @@
-import {$container, $input, $open} from './createdElements'
-import {loadFiles, triggerFiles} from "./listeners"
-import {createDOM} from "./createDOM"
+import {$input, $open, $preview} from './createdElements'
+import {loadFiles, removeFile, triggerFiles} from "./listeners"
 
-function Upload() {
+function upload() {
     $open.addEventListener('click', triggerFiles)
     $input.addEventListener('change', loadFiles)
-
-    return $container
-
+    $preview.addEventListener('click', removeFile)
 }
 
-createDOM()
 
-export default Upload()
+export default upload

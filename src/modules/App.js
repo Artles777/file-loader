@@ -15,6 +15,11 @@ export function createApp(app) {
             if (options.accept && Array.from(options.accept)) {
                 $input.setAttribute('accept', options.accept.join(','))
             }
+
+            if (options.callback && Array.from(options.callback)) {
+                options.callback.forEach(l => l())
+            }
+            return this
         }
     }
 }

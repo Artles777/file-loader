@@ -124,7 +124,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.createElement = createElement;
-exports.afterElement = afterElement;
+exports.formatBytes = formatBytes;
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
@@ -160,8 +160,18 @@ function createElement(tag) {
   return node;
 }
 
-function afterElement(parent, child) {
-  return parent.after(child);
+function formatBytes(size) {
+  var decimals = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 2;
+
+  if (!size) {
+    return "0 Bytes";
+  }
+
+  var dm = 0 > decimals ? 0 : decimals;
+  var arraySizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  var idx = Math.floor(Math.log(size) / Math.log(1024));
+  var value = Math.pow(1024, idx);
+  return parseFloat("".concat((size / value).toFixed(dm))) + ' ' + arraySizes[idx];
 }
 },{}],"src/modules/createdElements.js":[function(require,module,exports) {
 "use strict";
@@ -169,12 +179,12 @@ function afterElement(parent, child) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.$preview = exports.$load = exports.$open = exports.$input = exports.$card = exports.$container = void 0;
+exports.$preview = exports.$load = exports.$open = exports.$input = exports.$card = exports.$root = void 0;
 
 var _utils = require("../utils/utils");
 
-var $container = (0, _utils.createElement)('div', ['container']);
-exports.$container = $container;
+var $root = (0, _utils.createElement)('div', ['container']);
+exports.$root = $root;
 var $card = (0, _utils.createElement)('div', ['card']);
 exports.$card = $card;
 var $input = (0, _utils.createElement)('input', ['input'], {
@@ -192,86 +202,7 @@ var $load = (0, _utils.createElement)('button', ['btn', 'primary'], {
 exports.$load = $load;
 var $preview = (0, _utils.createElement)('div', ['preview']);
 exports.$preview = $preview;
-},{"../utils/utils":"src/utils/utils.js"}],"src/modules/listeners.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.triggerFiles = triggerFiles;
-exports.loadFiles = loadFiles;
-
-var _createdElements = require("./createdElements");
-
-function triggerFiles() {
-  return _createdElements.$input.click();
-}
-
-function loadFiles(event) {
-  var files = Array.from(event.target.files);
-  files.forEach(function (file) {
-    if (!file.type.match('image')) {
-      return;
-    }
-
-    var reader = new FileReader();
-
-    reader.onload = function (e) {
-      _createdElements.$preview.insertAdjacentHTML('afterbegin', "\n\t\t\t\t<div class=\"preview-image\">\n\t\t\t\t\t<img src=\"".concat(e.target.result, "\"/>\n\t\t\t\t</div>\n\t\t\t"));
-    };
-
-    _createdElements.$open.after(_createdElements.$load);
-
-    reader.readAsDataURL(file);
-  });
-}
-},{"./createdElements":"src/modules/createdElements.js"}],"src/modules/createDOM.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.createDOM = createDOM;
-
-var _createdElements = require("./createdElements");
-
-function createDOM() {
-  _createdElements.$container.append(_createdElements.$card);
-
-  _createdElements.$card.append(_createdElements.$input);
-
-  _createdElements.$input.after(_createdElements.$preview);
-
-  _createdElements.$input.after(_createdElements.$open);
-}
-},{"./createdElements":"src/modules/createdElements.js"}],"src/modules/upload.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _createdElements = require("./createdElements");
-
-var _listeners = require("./listeners");
-
-var _createDOM = require("./createDOM");
-
-function Upload() {
-  _createdElements.$open.addEventListener('click', _listeners.triggerFiles);
-
-  _createdElements.$input.addEventListener('change', _listeners.loadFiles);
-
-  return _createdElements.$container;
-}
-
-(0, _createDOM.createDOM)();
-
-var _default = Upload();
-
-exports.default = _default;
-},{"./createdElements":"src/modules/createdElements.js","./listeners":"src/modules/listeners.js","./createDOM":"src/modules/createDOM.js"}],"src/modules/App.js":[function(require,module,exports) {
+},{"../utils/utils":"src/utils/utils.js"}],"src/modules/App.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -298,6 +229,14 @@ function createApp(app) {
       if (options.accept && Array.from(options.accept)) {
         _createdElements.$input.setAttribute('accept', options.accept.join(','));
       }
+
+      if (options.callback && Array.from(options.callback)) {
+        options.callback.forEach(function (l) {
+          return l();
+        });
+      }
+
+      return this;
     }
   };
 }
@@ -373,22 +312,134 @@ var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
 module.hot.accept(reloadCSS);
-},{"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"src/main.js":[function(require,module,exports) {
+},{"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"src/modules/createDOM.js":[function(require,module,exports) {
 "use strict";
 
-var _upload = _interopRequireDefault(require("./modules/upload"));
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createDOM = createDOM;
+exports.previewHTML = previewHTML;
+
+var _createdElements = require("./createdElements");
+
+var _utils = require("../utils/utils");
+
+function createDOM() {
+  _createdElements.$root.append(_createdElements.$card);
+
+  _createdElements.$card.append(_createdElements.$input);
+
+  _createdElements.$input.after(_createdElements.$preview);
+
+  _createdElements.$input.after(_createdElements.$open);
+}
+
+function previewHTML(e, file) {
+  return "\n            <div class=\"preview-image\">\n                <div class=\"preview-remove\" data-name=\"".concat(file.name, "\">&times</div>\n                <img src=\"").concat(e.target.result, "\" alt=\"").concat(file.name, "\"/>\n                <div class=\"preview-info\">\n                    <span>").concat(file.name, "</span>\n                    ").concat((0, _utils.formatBytes)(file.size), "\n                </div>\n            </div>\n\t\t\t");
+}
+},{"./createdElements":"src/modules/createdElements.js","../utils/utils":"src/utils/utils.js"}],"src/modules/listeners.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.triggerFiles = triggerFiles;
+exports.loadFiles = loadFiles;
+exports.removeFile = removeFile;
+
+var _createdElements = require("./createdElements");
+
+var _createDOM = require("./createDOM");
+
+var files = [];
+
+function triggerFiles() {
+  return _createdElements.$input.click();
+}
+
+function loadFiles(event) {
+  _createdElements.$preview.innerHTML = '';
+  files = Array.from(event.target.files);
+  files.forEach(function (file) {
+    if (!file.type.match('image')) {
+      return;
+    }
+
+    var reader = new FileReader();
+
+    reader.onload = function (e) {
+      _createdElements.$preview.insertAdjacentHTML('afterbegin', (0, _createDOM.previewHTML)(e, file));
+    };
+
+    _createdElements.$open.after(_createdElements.$load);
+
+    reader.readAsDataURL(file || '');
+  });
+}
+
+function removeFile(event) {
+  var name = event.target.dataset.name;
+
+  if (!name) {
+    return;
+  }
+
+  files = files.filter(function (file) {
+    return file.name !== name;
+  });
+
+  var card = _createdElements.$preview.querySelector("[data-name=\"".concat(name, "\"]")).closest('.preview-image');
+
+  card.remove();
+
+  if (!files.length) {
+    _createdElements.$load.remove();
+  }
+}
+},{"./createdElements":"src/modules/createdElements.js","./createDOM":"src/modules/createDOM.js"}],"src/modules/upload.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _createdElements = require("./createdElements");
+
+var _listeners = require("./listeners");
+
+function upload() {
+  _createdElements.$open.addEventListener('click', _listeners.triggerFiles);
+
+  _createdElements.$input.addEventListener('change', _listeners.loadFiles);
+
+  _createdElements.$preview.addEventListener('click', _listeners.removeFile);
+}
+
+var _default = upload;
+exports.default = _default;
+},{"./createdElements":"src/modules/createdElements.js","./listeners":"src/modules/listeners.js"}],"src/main.js":[function(require,module,exports) {
+"use strict";
 
 var _App = require("./modules/App");
 
 require("./style.scss");
 
+var _createdElements = require("./modules/createdElements");
+
+var _upload = _interopRequireDefault(require("./modules/upload"));
+
+var _createDOM = require("./modules/createDOM");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-(0, _App.createApp)(_upload.default).render('#app').use({
+(0, _App.createApp)(_createdElements.$root).render('#app').use({
   multi: true,
-  accept: ['.png', '.jpg', '.jpeg', '.gif']
+  accept: ['.png', '.jpg', '.jpeg', '.gif'],
+  callback: [_upload.default, _createDOM.createDOM]
 });
-},{"./modules/upload":"src/modules/upload.js","./modules/App":"src/modules/App.js","./style.scss":"src/style.scss"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./modules/App":"src/modules/App.js","./style.scss":"src/style.scss","./modules/createdElements":"src/modules/createdElements.js","./modules/upload":"src/modules/upload.js","./modules/createDOM":"src/modules/createDOM.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -416,7 +467,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50160" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50161" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

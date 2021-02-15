@@ -26,3 +26,8 @@ export function formatBytes(size, decimals= 2) {
 
     return parseFloat(`${(size / value).toFixed(dm)}`) + ' ' + arraySizes[idx]
 }
+
+export function changeBlock(el) {
+    el.style.bottom = '4px'
+    el.innerHTML = '<div class="preview-info-progress"></div>'
+}

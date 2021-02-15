@@ -1,5 +1,6 @@
 import {$input, $load, $open, $preview} from "./createdElements"
 import {previewHTML} from "./createDOM"
+import {changeBlock} from "../utils/utils";
 
 let files = []
 
@@ -39,4 +40,11 @@ export function removeFile(event) {
 	if (!files.length) {
 		$load.remove()
 	}
+}
+
+export function loadingHandler() {
+	$preview.querySelectorAll('.preview-remove')
+		.forEach(el => el.remove())
+	const previewInfo = $preview.querySelectorAll('.preview-info')
+	previewInfo.forEach(changeBlock)
 }

@@ -125,6 +125,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.createElement = createElement;
 exports.formatBytes = formatBytes;
+exports.changeBlock = changeBlock;
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
@@ -172,6 +173,11 @@ function formatBytes(size) {
   var idx = Math.floor(Math.log(size) / Math.log(1024));
   var value = Math.pow(1024, idx);
   return parseFloat("".concat((size / value).toFixed(dm))) + ' ' + arraySizes[idx];
+}
+
+function changeBlock(el) {
+  el.style.bottom = '4px';
+  el.innerHTML = '<div class="preview-info-progress"></div>';
 }
 },{}],"src/modules/createdElements.js":[function(require,module,exports) {
 "use strict";
@@ -230,12 +236,16 @@ function createApp(app) {
         _createdElements.$input.setAttribute('accept', options.accept.join(','));
       }
 
-      if (options.callback && Array.from(options.callback)) {
-        options.callback.forEach(function (l) {
-          return l();
-        });
+      return this;
+    },
+    run: function run() {
+      for (var _len = arguments.length, callbacks = new Array(_len), _key = 0; _key < _len; _key++) {
+        callbacks[_key] = arguments[_key];
       }
 
+      callbacks.forEach(function (fn) {
+        return fn();
+      });
       return this;
     }
   };
@@ -347,10 +357,13 @@ Object.defineProperty(exports, "__esModule", {
 exports.triggerFiles = triggerFiles;
 exports.loadFiles = loadFiles;
 exports.removeFile = removeFile;
+exports.loadingHandler = loadingHandler;
 
 var _createdElements = require("./createdElements");
 
 var _createDOM = require("./createDOM");
+
+var _utils = require("../utils/utils");
 
 var files = [];
 
@@ -397,7 +410,17 @@ function removeFile(event) {
     _createdElements.$load.remove();
   }
 }
-},{"./createdElements":"src/modules/createdElements.js","./createDOM":"src/modules/createDOM.js"}],"src/modules/upload.js":[function(require,module,exports) {
+
+function loadingHandler() {
+  _createdElements.$preview.querySelectorAll('.preview-remove').forEach(function (el) {
+    return el.remove();
+  });
+
+  var previewInfo = _createdElements.$preview.querySelectorAll('.preview-info');
+
+  previewInfo.forEach(_utils.changeBlock);
+}
+},{"./createdElements":"src/modules/createdElements.js","./createDOM":"src/modules/createDOM.js","../utils/utils":"src/utils/utils.js"}],"src/modules/upload.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -415,6 +438,8 @@ function upload() {
   _createdElements.$input.addEventListener('change', _listeners.loadFiles);
 
   _createdElements.$preview.addEventListener('click', _listeners.removeFile);
+
+  _createdElements.$load.addEventListener('click', _listeners.loadingHandler);
 }
 
 var _default = upload;
@@ -436,9 +461,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 (0, _App.createApp)(_createdElements.$root).render('#app').use({
   multi: true,
-  accept: ['.png', '.jpg', '.jpeg', '.gif'],
-  callback: [_upload.default, _createDOM.createDOM]
-});
+  accept: ['.png', '.jpg', '.jpeg', '.gif']
+}).run(_upload.default, _createDOM.createDOM);
 },{"./modules/App":"src/modules/App.js","./style.scss":"src/style.scss","./modules/createdElements":"src/modules/createdElements.js","./modules/upload":"src/modules/upload.js","./modules/createDOM":"src/modules/createDOM.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -467,7 +491,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50161" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55964" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

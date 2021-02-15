@@ -117,7 +117,310 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"src/modules/App.js":[function(require,module,exports) {
+})({"src/utils/utils.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createElement = createElement;
+exports.formatBytes = formatBytes;
+exports.changeBlock = changeBlock;
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function createElement(tag) {
+  var _node$classList;
+
+  var classes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+  var attrs = arguments.length > 2 ? arguments[2] : undefined;
+  var node = document.createElement(tag);
+
+  (_node$classList = node.classList).add.apply(_node$classList, _toConsumableArray(classes));
+
+  if (attrs) {
+    Object.keys(attrs).forEach(function (attr) {
+      if (attr === 'content') {
+        node.textContent = attrs[attr];
+      } else {
+        node.setAttribute(attr, attrs[attr]);
+      }
+    });
+  }
+
+  return node;
+}
+
+function formatBytes(size) {
+  var decimals = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 2;
+
+  if (!size) {
+    return "0 Bytes";
+  }
+
+  var dm = 0 > decimals ? 0 : decimals;
+  var arraySizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  var idx = Math.floor(Math.log(size) / Math.log(1024));
+  var value = Math.pow(1024, idx);
+  return parseFloat("".concat((size / value).toFixed(dm))) + ' ' + arraySizes[idx];
+}
+
+function changeBlock(el) {
+  el.style.bottom = '4px';
+  el.innerHTML = '<div class="preview-info-progress"></div>';
+}
+},{}],"src/modules/createdElements.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.$preview = exports.$load = exports.$open = exports.$input = exports.$card = exports.$root = void 0;
+
+var _utils = require("../utils/utils");
+
+var $root = (0, _utils.createElement)('div', ['container']);
+exports.$root = $root;
+var $card = (0, _utils.createElement)('div', ['card']);
+exports.$card = $card;
+var $input = (0, _utils.createElement)('input', ['input'], {
+  id: 'input',
+  type: 'file'
+});
+exports.$input = $input;
+var $open = (0, _utils.createElement)('button', ['btn'], {
+  content: 'Открыть'
+});
+exports.$open = $open;
+var $load = (0, _utils.createElement)('button', ['btn', 'primary'], {
+  content: 'Загрузить'
+});
+exports.$load = $load;
+var $preview = (0, _utils.createElement)('div', ['preview']);
+exports.$preview = $preview;
+},{"../utils/utils":"src/utils/utils.js"}],"src/modules/App.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createApp = createApp;
+
+var _createdElements = require("./createdElements");
+
+function createApp(app) {
+  return {
+    render: function render(selector) {
+      var $el = document.querySelector(selector);
+      $el.insertAdjacentElement('afterbegin', app);
+      return this;
+    },
+    use: function use() {
+      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+      if (options.multi) {
+        _createdElements.$input.setAttribute('multiple', 'true');
+      }
+
+      if (options.accept && Array.from(options.accept)) {
+        _createdElements.$input.setAttribute('accept', options.accept.join(','));
+      }
+
+      return this;
+    },
+    run: function run() {
+      for (var _len = arguments.length, callbacks = new Array(_len), _key = 0; _key < _len; _key++) {
+        callbacks[_key] = arguments[_key];
+      }
+
+      callbacks.forEach(function (fn) {
+        return fn();
+      });
+      return this;
+    }
+  };
+}
+},{"./createdElements":"src/modules/createdElements.js"}],"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
+var bundleURL = null;
+
+function getBundleURLCached() {
+  if (!bundleURL) {
+    bundleURL = getBundleURL();
+  }
+
+  return bundleURL;
+}
+
+function getBundleURL() {
+  // Attempt to find the URL of the current script and use that as the base URL
+  try {
+    throw new Error();
+  } catch (err) {
+    var matches = ('' + err.stack).match(/(https?|file|ftp|chrome-extension|moz-extension):\/\/[^)\n]+/g);
+
+    if (matches) {
+      return getBaseURL(matches[0]);
+    }
+  }
+
+  return '/';
+}
+
+function getBaseURL(url) {
+  return ('' + url).replace(/^((?:https?|file|ftp|chrome-extension|moz-extension):\/\/.+)\/[^/]+$/, '$1') + '/';
+}
+
+exports.getBundleURL = getBundleURLCached;
+exports.getBaseURL = getBaseURL;
+},{}],"node_modules/parcel-bundler/src/builtins/css-loader.js":[function(require,module,exports) {
+var bundle = require('./bundle-url');
+
+function updateLink(link) {
+  var newLink = link.cloneNode();
+
+  newLink.onload = function () {
+    link.remove();
+  };
+
+  newLink.href = link.href.split('?')[0] + '?' + Date.now();
+  link.parentNode.insertBefore(newLink, link.nextSibling);
+}
+
+var cssTimeout = null;
+
+function reloadCSS() {
+  if (cssTimeout) {
+    return;
+  }
+
+  cssTimeout = setTimeout(function () {
+    var links = document.querySelectorAll('link[rel="stylesheet"]');
+
+    for (var i = 0; i < links.length; i++) {
+      if (bundle.getBaseURL(links[i].href) === bundle.getBundleURL()) {
+        updateLink(links[i]);
+      }
+    }
+
+    cssTimeout = null;
+  }, 50);
+}
+
+module.exports = reloadCSS;
+},{"./bundle-url":"node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"src/style.scss":[function(require,module,exports) {
+var reloadCSS = require('_css_loader');
+
+module.hot.dispose(reloadCSS);
+module.hot.accept(reloadCSS);
+},{"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"src/modules/createDOM.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createDOM = createDOM;
+exports.previewHTML = previewHTML;
+
+var _createdElements = require("./createdElements");
+
+var _utils = require("../utils/utils");
+
+function createDOM() {
+  _createdElements.$root.append(_createdElements.$card);
+
+  _createdElements.$card.append(_createdElements.$input);
+
+  _createdElements.$input.after(_createdElements.$preview);
+
+  _createdElements.$input.after(_createdElements.$open);
+}
+
+function previewHTML(e, file) {
+  return "\n            <div class=\"preview-image\">\n                <div class=\"preview-remove\" data-name=\"".concat(file.name, "\">&times</div>\n                <img src=\"").concat(e.target.result, "\" alt=\"").concat(file.name, "\"/>\n                <div class=\"preview-info\">\n                    <span>").concat(file.name, "</span>\n                    ").concat((0, _utils.formatBytes)(file.size), "\n                </div>\n            </div>\n\t\t\t");
+}
+},{"./createdElements":"src/modules/createdElements.js","../utils/utils":"src/utils/utils.js"}],"src/modules/listeners.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.triggerFiles = triggerFiles;
+exports.loadFiles = loadFiles;
+exports.removeFile = removeFile;
+exports.loadingHandler = loadingHandler;
+
+var _createdElements = require("./createdElements");
+
+var _createDOM = require("./createDOM");
+
+var _utils = require("../utils/utils");
+
+var files = [];
+
+function triggerFiles() {
+  return _createdElements.$input.click();
+}
+
+function loadFiles(event) {
+  _createdElements.$preview.innerHTML = '';
+  files = Array.from(event.target.files);
+  files.forEach(function (file) {
+    if (!file.type.match('image')) {
+      return;
+    }
+
+    var reader = new FileReader();
+
+    reader.onload = function (e) {
+      _createdElements.$preview.insertAdjacentHTML('afterbegin', (0, _createDOM.previewHTML)(e, file));
+    };
+
+    _createdElements.$open.after(_createdElements.$load);
+
+    reader.readAsDataURL(file || '');
+  });
+}
+
+function removeFile(event) {
+  var name = event.target.dataset.name;
+
+  if (!name) {
+    return;
+  }
+
+  files = files.filter(function (file) {
+    return file.name !== name;
+  });
+
+  var card = _createdElements.$preview.querySelector("[data-name=\"".concat(name, "\"]")).closest('.preview-image');
+
+  card.remove();
+
+  if (!files.length) {
+    _createdElements.$load.remove();
+  }
+}
+
+function loadingHandler() {
+  _createdElements.$preview.querySelectorAll('.preview-remove').forEach(function (el) {
+    return el.remove();
+  });
+
+  var previewInfo = _createdElements.$preview.querySelectorAll('.preview-info');
+
+  previewInfo.forEach(_utils.changeBlock);
+}
+},{"./createdElements":"src/modules/createdElements.js","./createDOM":"src/modules/createDOM.js","../utils/utils":"src/utils/utils.js"}],"src/modules/upload.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -125,45 +428,42 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+var _createdElements = require("./createdElements");
 
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+var _listeners = require("./listeners");
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+function upload() {
+  _createdElements.$open.addEventListener('click', _listeners.triggerFiles);
 
-var App = /*#__PURE__*/function () {
-  function App(selector) {
-    _classCallCheck(this, App);
+  _createdElements.$input.addEventListener('change', _listeners.loadFiles);
 
-    this.$el = document.querySelector(selector);
-  }
+  _createdElements.$preview.addEventListener('click', _listeners.removeFile);
 
-  _createClass(App, [{
-    key: "toHTML",
-    value: function toHTML() {
-      return "\n            <div class=\"container\">\n                <input type=\"file\" class=\"input\">\n            </div>\n        ";
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      this.$el.insertAdjacentHTML('afterbegin', this.toHTML());
-    }
-  }]);
+  _createdElements.$load.addEventListener('click', _listeners.loadingHandler);
+}
 
-  return App;
-}();
-
-exports.default = App;
-},{}],"src/main.js":[function(require,module,exports) {
+var _default = upload;
+exports.default = _default;
+},{"./createdElements":"src/modules/createdElements.js","./listeners":"src/modules/listeners.js"}],"src/main.js":[function(require,module,exports) {
 "use strict";
 
-var _App = _interopRequireDefault(require("./modules/App"));
+var _App = require("./modules/App");
+
+require("./style.scss");
+
+var _createdElements = require("./modules/createdElements");
+
+var _upload = _interopRequireDefault(require("./modules/upload"));
+
+var _createDOM = require("./modules/createDOM");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var app = new _App.default('#app');
-app.render('test string');
-},{"./modules/App":"src/modules/App.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+(0, _App.createApp)(_createdElements.$root).render('#app').use({
+  multi: true,
+  accept: ['.png', '.jpg', '.jpeg', '.gif']
+}).run(_upload.default, _createDOM.createDOM);
+},{"./modules/App":"src/modules/App.js","./style.scss":"src/style.scss","./modules/createdElements":"src/modules/createdElements.js","./modules/upload":"src/modules/upload.js","./modules/createDOM":"src/modules/createDOM.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -191,7 +491,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56806" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55964" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
